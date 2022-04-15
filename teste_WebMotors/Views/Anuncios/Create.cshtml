@@ -1,0 +1,163 @@
+﻿@model teste_WebMotors.Models.AnunciosDTO
+
+@{
+    ViewData["Title"] = "Novo Anúncio";
+}
+
+<div class="border border-light rounded-1g p-5 shadow">
+    <h6>Cadastrar Novo Anúncio</h6>
+    <hr />
+    <div class="row">
+        <div class="col-md-4">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Marca" class="col-form-label col-label-sm"></label>
+                    <select id="marca" asp-for="Marca" asp-va class="form-control form-control-sm">
+                    </select>
+                    <span asp-validation-for="Marca" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Modelo" class="col-form-label col-label-sm"></label>
+                    <select id="modelo" asp-for="Modelo" class="form-control form-control-sm"></select>
+                    <span asp-validation-for="Modelo" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Versao" class="col-form-label col-label-sm"></label>
+                    <select id="versao" asp-for="Versao" class="form-control form-control-sm"></select>
+                    <span asp-validation-for="Versao" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Ano" class="col-form-label col-label-sm"></label>
+                    <input asp-for="Ano" class="form-control form-control-sm" />
+                    <span asp-validation-for="Ano" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Quilometragem" class="col-form-label col-label-sm"></label>
+                    <input asp-for="Quilometragem" class="form-control form-control-sm" />
+                    <span asp-validation-for="Quilometragem" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Observacao" class="col-form-label col-label-sm"></label>
+                    <input asp-for="Observacao" class="form-control form-control-sm" />
+                    <span asp-validation-for="Observacao" class="text-danger"></span>
+                </div>
+                <br />
+                <div class="form-group">
+                    <input type="submit" value="Cadastrar" class="btn btn-success btn-sm" />
+                    <a asp-action="Index" class="btn-primary btn-light btn-sm">Voltar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+
+    <script>
+        $(document).ready(function (){
+            var marcaDDL = $('#marca')
+            var modeloDDL = $('#modelo')
+            var versaoDDL= $('#versao')
+
+            $.ajax({
+                url: '/Anuncios/GetMakes',
+                method: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    marcaDDL.append($('<option/>', {value: -1, text:"Selecione a Marca"}));
+                    modeloDDL.append($('<option/>', {value: -1, text:"Selecione o Modelo"}));
+                    versaoDDL.append($('<option/>', {value: -1, text:"Selecione a Versão"}));
+
+                    modeloDDL.prop('disabled',true);
+                    versaoDDL.prop('disabled',true);
+
+                    $(data).each(function(index, item){
+                        marcaDDL.append($('<option/>', {value: item.ID, text:item.Name}));
+                    });
+                },
+                error: (e) => {
+            console.log('nao foi')
+        }
+            });
+
+            marcaDDL.change(function() {
+                if($(this).val() == "-1")
+                {
+                    modeloDDL.empty();
+                    versaoDDL.empty();
+
+                    modeloDDL.append($('<option/>', {value: -1, text:"Selecione o Modelo"}));
+                    versaoDDL.append($('<option/>', {value: -1, text:"Selecione a Versão"}));
+
+                    modeloDDL.val('-1');
+                    versaoDDL.val('-1');
+
+                    modeloDDL.prop('disabled',true);
+                    versaoDDL.prop('disabled',true);
+                }
+                else {
+                    $.ajax({
+                url: '/Anuncios/GetModelByMakeID',
+                method: 'GET',
+                data: {makeID: $(this).val()},
+                dataType: 'json',
+                success: function(data) {
+                    modeloDDL.empty();
+                    modeloDDL.append($('<option/>', {value: -1, text:"Selecione o Modelo"}));
+                    modeloDDL.prop('disabled',false);
+
+                    versaoDDL.empty();
+                    versaoDDL.append($('<option/>', {value: -1, text:"Selecione o Versão"}));
+                    versaoDDL.val('-1');
+                    versaoDDL.prop('disabled',true);
+
+                    $(data).each(function(index, item){
+                        modeloDDL.append($('<option/>', {value: item.ID, text:item.Name}));
+                    });
+                },
+                error: (e) => {
+            console.log('nao foi')
+        }
+            });
+                }
+            });
+            modeloDDL.change(function() {
+                if($(this).val() == "-1")
+                {
+                    versaoDDL.empty();
+
+                    versaoDDL.append($('<option/>', {value: -1, text:"Selecione a Versão"}));
+
+                    versaoDDL.val('-1');
+
+                    versaoDDL.prop('disabled',true);
+                }
+                else {
+                    $.ajax({
+                url: '/Anuncios/GetVersionByModelID',
+                method: 'GET',
+                data: {modelID: $(this).val()},
+                dataType: 'json',
+                success: function(data) {
+                    versaoDDL.empty();
+                    versaoDDL.append($('<option/>', {value: -1, text:"Selecione o Versão"}));
+                    versaoDDL.prop('disabled',false);
+                    $(data).each(function(index, item){
+                        versaoDDL.append($('<option/>', {value: item.ID, text:item.Name}));
+                    });
+                },
+                error: (e) => {
+            console.log('nao foi')
+        }
+            });
+                }
+                });
+        });
+    </script>
+}
+}
