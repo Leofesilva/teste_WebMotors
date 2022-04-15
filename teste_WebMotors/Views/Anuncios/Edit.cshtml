@@ -17,21 +17,21 @@
                 <input type="hidden" asp-for="Id" />
                 <div class="form-group">
                     <label asp-for="Marca" class="col-form-label col-label-sm"></label>
-                    <select id="marca" asp-for="Marca" class="form-control form-control-sm">
-                        <option style="display:none" id="marca_edit">@Html.DisplayFor(c => c.Marca)</option>
+                    <select id="marca" asp-for="MakeID" class="form-control form-control-sm">
+                        <option style="display:none" id="marca_edit">@Html.DisplayFor(c => c.MakeID)</option>
                     </select>
                     <span asp-validation-for="Marca" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Modelo" class="col-form-label col-label-sm"></label>
-                    <select id="modelo" asp-for="Modelo" class="form-control form-control-sm"></select>
-                    <option style="display:none" id="modelo_edit">@Html.DisplayFor(c => c.Modelo)</option>
+                    <select id="modelo" asp-for="ModelID" class="form-control form-control-sm"></select>
+                    <option style="display:none" id="modelo_edit">@Html.DisplayFor(c => c.ModelID)</option>
                     <span asp-validation-for="Modelo" class="text-danger"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="Versao" class="col-form-label col-label-sm"></label>
-                    <select id="versao" asp-for="Versao" class="form-control form-control-sm"></select>
-                    <option style="display:none" id="versao_edit">@Html.DisplayFor(c => c.Versao)</option>
+                    <select id="versao" asp-for="VersionID" class="form-control form-control-sm"></select>
+                    <option style="display:none" id="versao_edit">@Html.DisplayFor(c => c.VersionID)</option>
                     <span asp-validation-for="Versao" class="text-danger"></span>
                 </div>
                 <div class="form-group">
@@ -48,6 +48,11 @@
                     <label asp-for="Observacao" class="col-form-label col-label-sm"></label>
                     <input asp-for="Observacao" class="form-control form-control-sm" />
                     <span asp-validation-for="Observacao" class="text-danger"></span>
+                </div>
+                <div style="display:none" class="form-group">
+                    <input id="desMarca" asp-for="Marca" class="form-control form-control-sm" />
+                    <input id="desModelo" asp-for="Modelo" class="form-control form-control-sm" />
+                    <input id="desVersao" asp-for="Versao" class="form-control form-control-sm" />
                 </div>
                 <br />
                 <div class="form-group">
@@ -145,6 +150,10 @@
                 modeloDDL.val('-1');
                 versaoDDL.val('-1');
 
+                desMarca.val('');
+                desModelo.val('');
+                desVersao.val('');
+
                 modeloDDL.prop('disabled',true);
                 versaoDDL.prop('disabled',true);
             }
@@ -158,6 +167,10 @@
                 modeloDDL.empty();
                 modeloDDL.append($('<option/>', {value: -1, text:"Selecione o Modelo"}));
                 modeloDDL.prop('disabled',false);
+
+                desMarca.val($("#marca option:selected").text());
+                desModelo.val('');
+                desVersao.val('');
 
                 versaoDDL.empty();
                 versaoDDL.append($('<option/>', {value: -1, text:"Selecione o Versão"}));
@@ -181,6 +194,9 @@
 
                 versaoDDL.append($('<option/>', {value: -1, text:"Selecione a Versão"}));
 
+                desModelo.val('');
+                desVersao.val('');
+
                 versaoDDL.val('-1');
 
                 versaoDDL.prop('disabled',true);
@@ -195,6 +211,10 @@
                 versaoDDL.empty();
                 versaoDDL.append($('<option/>', {value: -1, text:"Selecione o Versão"}));
                 versaoDDL.prop('disabled',false);
+
+                desModelo.val($("#modelo option:selected").text());
+                desVersao.val('');
+
                 $(data).each(function(index, item){
                     versaoDDL.append($('<option/>', {value: item.ID, text:item.Name}));
                 });
@@ -205,6 +225,15 @@
         });
             }
             });
+            versaoDDL.change(function() {
+                if($(this).val() == "-1")
+                {
+                    desVersao.val('');
+                }
+                else {
+                    desVersao.val($("#versao option:selected").text());
+                }
+                });
     });
 </script>
 }

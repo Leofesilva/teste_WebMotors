@@ -25,7 +25,7 @@ namespace teste_WebMotors.Controllers
         // GET: Anuncios
         public async Task<IActionResult> Index()
         {
-            return View(MapAPIModel(await _context.Anuncios.ToListAsync()).GetAwaiter().GetResult());
+            return View(await _context.Anuncios.ToListAsync());
         }
 
         [HttpPost]
@@ -33,20 +33,10 @@ namespace teste_WebMotors.Controllers
         {
             if (!String.IsNullOrEmpty(txtAnuncio))
             {
-                var lista = new List<AnunciosDTO>();
-                var anunciosDTO = MapAPIModel(await _context.Anuncios.ToListAsync()).GetAwaiter().GetResult();
-
-                foreach (var anuncio in anunciosDTO)
-                {
-                    if (anuncio.Modelo.ToUpper().Contains(txtAnuncio.ToUpper()))
-                    {
-                        lista.Add(anuncio);
-                    }
-                }
-                return View(lista);
+                return View(await _context.Anuncios.Where(c => c.Modelo.ToUpper().Contains(txtAnuncio.ToUpper())).ToListAsync());
             }
 
-            return View(MapAPIModel(await _context.Anuncios.ToListAsync()).GetAwaiter().GetResult());
+            return View(await _context.Anuncios.ToListAsync());
         }
 
         // GET: Anuncios/Details/5
@@ -57,24 +47,13 @@ namespace teste_WebMotors.Controllers
                 return NotFound();
             }
 
-            var objAnuncio = new AnunciosDTO();
+            var anunciosDTO = await _context.Anuncios.FindAsync(id);
 
-            var anunciosDTO = MapAPIModel(await _context.Anuncios.ToListAsync()).GetAwaiter().GetResult();
-
-            foreach (var anuncio in anunciosDTO)
-            {
-                if (anuncio.Id == id)
-                {
-                    objAnuncio = anuncio;
-                }
-            }
-
-            if (objAnuncio == null)
+            if (anunciosDTO == null)
             {
                 return NotFound();
             }
-
-            return View(objAnuncio);
+            return View(anunciosDTO);
         }
 
         // GET: Anuncios/Create
@@ -108,7 +87,8 @@ namespace teste_WebMotors.Controllers
                 return NotFound();
             }
 
-            var anunciosDTO = await _context.Anuncios.FindAsync(id);
+            var anunciosDTO = await MapAPIModel(await _context.Anuncios.FindAsync(id));
+
             if (anunciosDTO == null)
             {
                 return NotFound();
@@ -159,24 +139,12 @@ namespace teste_WebMotors.Controllers
                 return NotFound();
             }
 
-            var objAnuncio = new AnunciosDTO();
-
-            var anunciosDTO = MapAPIModel(await _context.Anuncios.ToListAsync()).GetAwaiter().GetResult();
-
-            foreach (var anuncio in anunciosDTO)
-            {
-                if (anuncio.Id == id)
-                {
-                    objAnuncio = anuncio;
-                }
-            }
-
-            if (objAnuncio == null)
+            var anunciosDTO = await _context.Anuncios.FindAsync(id);
+            if (anunciosDTO == null)
             {
                 return NotFound();
             }
-
-            return View(objAnuncio);
+            return View(anunciosDTO);
         }
 
         // POST: Anuncios/Delete/5
@@ -219,56 +187,50 @@ namespace teste_WebMotors.Controllers
             return await GetAPIData(apiMethod);
         }
 
-        private async Task<List<AnunciosDTO>> MapAPIModel(List<AnunciosDTO> anuncios)
+        private async Task<AnunciosDTO> MapAPIModel(AnunciosDTO anuncio)
         {
             IEnumerable<MarcaDTO> objMarca = new Stack<MarcaDTO>();
             IEnumerable<ModeloDTO> objModelo = new Stack<ModeloDTO>();
             IEnumerable<VersaoDTO> objVersao = new Stack<VersaoDTO>();
-            int makeID = 0, modelID = 0, versionID = 0;
 
-            if (anuncios.Count() > 0)
+            if (anuncio != null)
             {
-                foreach (var anuncio in anuncios)
+                objMarca = JsonConvert.DeserializeObject<IEnumerable<MarcaDTO>>(await GetMakes());
+                foreach (var item in objMarca)
                 {
-                    objMarca = JsonConvert.DeserializeObject<IEnumerable<MarcaDTO>>(GetMakes().GetAwaiter().GetResult());
-                    foreach (var item in objMarca)
+                    if (item.Name == anuncio.Marca)
                     {
-                        if (item.ID == Int32.Parse(anuncio.Marca))
+                        anuncio.MakeID = item.ID;
+                        break;
+                    }
+                }
+                if (anuncio.MakeID > 0)
+                {
+                    objModelo = JsonConvert.DeserializeObject<IEnumerable<ModeloDTO>>(await GetModelByMakeID(anuncio.MakeID));
+                    foreach (var item in objModelo)
+                    {
+                        if (item.Name == anuncio.Modelo)
                         {
-                            makeID = item.ID;
-                            anuncio.Marca = item.Name;
+                            anuncio.ModelID = item.ID;
                             break;
                         }
                     }
-                    if (makeID > 0)
+                    if (anuncio.ModelID > 0)
                     {
-                        objModelo = JsonConvert.DeserializeObject<IEnumerable<ModeloDTO>>(GetModelByMakeID(makeID).GetAwaiter().GetResult());
-                        foreach (var item in objModelo)
+                        objVersao = JsonConvert.DeserializeObject<IEnumerable<VersaoDTO>>(await GetVersionByModelID(anuncio.ModelID));
+                        foreach (var item in objVersao)
                         {
-                            if (item.ID == Int32.Parse(anuncio.Modelo))
+                            if (item.Name == anuncio.Versao)
                             {
-                                modelID = item.ID;
-                                anuncio.Modelo = item.Name;
+                                anuncio.VersionID = item.ID;
                                 break;
-                            }
-                        }
-                        if (modelID > 0)
-                        {
-                            objVersao = JsonConvert.DeserializeObject<IEnumerable<VersaoDTO>>(GetVersionByModelID(modelID).GetAwaiter().GetResult());
-                            foreach (var item in objVersao)
-                            {
-                                if (item.ID == Int32.Parse(anuncio.Versao))
-                                {
-                                    anuncio.Versao = item.Name;
-                                    break;
-                                }
                             }
                         }
                     }
                 }
             }
 
-            return anuncios;
+            return anuncio;
         }
 
         private async Task<string> GetAPIData(string apiMethod)

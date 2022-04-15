@@ -45,5 +45,12 @@ namespace teste_WebMotors.Models
         [Required(ErrorMessage = "Necessário colocar Alguma Observação sobre o Veículo")]
         public string Observacao { get; set; }
 
+        [NotMapped]
+        public int MakeID { get; set; }
+        [NotMapped]
+        public int ModelID { get; set; }
+        [NotMapped]
+        public int VersionID { get; set; }
+
     }
 }
