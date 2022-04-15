@@ -2,7 +2,7 @@
 Olá pessoal!
 
 --IMPORTANTE--
-##Desenvolvido no Visual Studio 2022 Community### .NET SDK 6.0
+##Desenvolvido no Visual Studio 2022 Community### .NET SDK 6.0 - ASP NET CORE
 
 Para executar a aplicação é necessário primeiro executar o comando no console do Visual Studio para criar o banco de dados local:
 
