@@ -4,7 +4,7 @@ Olá pessoal!
 --IMPORTANTE--
 ##Desenvolvido no Visual Studio 2022 Community### .NET 6.0 - ASP NET CORE
 
-Para executar a aplicação é necessário primeiro executar o comando no console do Visual Studio para criar o banco de dados local:
+Para rodar a aplicação é necessário primeiro executar o comando no console do Visual Studio para criar o banco de dados local:
 
 Update-database -context Mycontext
 
